@@ -143,6 +143,12 @@ module API
         transactions.each do |transaction|
           if transaction.options.present? && transaction.options[:tid].present?
             withdraw = Withdraws::Coin.find_by(tid: transaction.options[:tid])
+
+            if transaction.status == "failed"
+              withdraw.fail!
+              next
+            end
+
             if withdraw.present? && withdraw.txid.blank?
               withdraw.txid = transaction.hash
               withdraw.save!
