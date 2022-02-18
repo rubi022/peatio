@@ -96,7 +96,7 @@ steps:
   when:
     branch:
       - master
-      - "*-stable"
+#     - "*-stable"
 
 volumes:
 - name: bundle-cache
@@ -183,7 +183,7 @@ trigger:
     - push
   branch:
     - master
-    - "*-stable"
+#   - "*-stable"
     - "fix-db/*"
 
 ---
@@ -263,7 +263,7 @@ trigger:
     - push
   branch:
     - master
-    - "*-stable"
+#   - "*-stable"
     - "fix-db/*"
 
 ---
@@ -346,7 +346,7 @@ trigger:
     - push
   branch:
     - master
-    - "*-stable"
+#   - "*-stable"
     - "fix-db/*"
 
 ---
@@ -545,11 +545,11 @@ trigger:
   branch:
     - "*-stable"
 
-depends_on:
-- test-mysql-5.7
-- test-mariadb-10.3
-- test-mysql-8.0
-- test-postgresql-13.0
+# depends_on:
+# - test-mysql-5.7
+# - test-mariadb-10.3
+# - test-mysql-8.0
+# - test-postgresql-13.0
 
 image_pull_secrets:
   - dockerconfigjson
