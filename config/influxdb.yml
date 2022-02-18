@@ -3,6 +3,7 @@ default: &default
   port: <%= ENV.fetch("INFLUXDB_PORT", 8086) %>
   username: <%= ENV.fetch("INFLUXDB_USER", "root") %>
   password: <%= ENV.fetch("INFLUXDB_PASS", "root") %>
+  rp_enabled: <%= ENV.fetch("INFLUXDB_RP_ENABLED", false) %>
 
 development:
   <<: *default

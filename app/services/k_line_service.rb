@@ -36,6 +36,10 @@ class KLineService
     @period        = humanize_period(period)
   end
 
+  def candles_with_rp
+    Peatio::InfluxDB.m_with_rp "candles_#{@period}"
+  end
+
   # OHCL - open, high, closing, and low prices.
   def get_ohlc(options = {})
     options = options.symbolize_keys.tap do |o|
@@ -46,7 +50,7 @@ class KLineService
     time_to = options[:time_to]
     offset = calculate_offset(options) if time_from.blank?
 
-    q = ["SELECT * FROM candles_#{@period} WHERE market='#{@market_symbol}'"]
+    q = ["SELECT * FROM #{candles_with_rp} WHERE market='#{@market_symbol}'"]
     q << "AND time >= #{time_from.to_i * 1_000_000_000}" if time_from.present?
     q << "AND time <= #{time_to.to_i * 1_000_000_000}" if time_to.present?
     q << "ORDER BY #{options[:order_by]}" if options[:order_by]
@@ -61,7 +65,7 @@ class KLineService
   end
 
   def calculate_offset(options)
-    q = ["SELECT COUNT(high) FROM candles_#{@period} WHERE market='#{@market_symbol}'"]
+    q = ["SELECT COUNT(high) FROM #{candles_with_rp} WHERE market='#{@market_symbol}'"]
     q << "AND time <= #{options[:time_to].to_i * 1_000_000_000}" if options[:time_to].present?
     Peatio::InfluxDB.client(keyshard: @market_symbol, epoch: 's').query(q.join(' ')) do |_, _, values|
       return options[:limit].to_i < values.first['count'] ? values.first['count'] - options[:limit] : 0

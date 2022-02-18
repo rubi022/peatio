@@ -59,8 +59,12 @@ class Trade < ApplicationRecord
       end
     end
 
+    def trades_with_rp
+      Peatio::InfluxDB.m_with_rp "trades"
+    end
+
     def public_from_influx(market, limit = 100, options = {})
-      trades_query = ['SELECT id, price, amount, total, taker_type, market, created_at FROM trades WHERE market=%{market}']
+      trades_query = ["SELECT id, price, amount, total, taker_type, market, created_at FROM #{trades_with_rp} WHERE market=%{market}"]
       trades_query << 'AND taker_type=%{type}' if options[:type].present?
       trades_query << 'AND created_at>=%{start_time}' if options[:start_time].present?
       trades_query << 'AND created_at<=%{end_time}' if options[:end_time].present?
@@ -74,29 +78,29 @@ class Trade < ApplicationRecord
         options.merge!(limit: limit)
       end
 
-      Peatio::InfluxDB.client(keyshard: market).query trades_query.join(' '), params: options.merge(market: market) do |_name, _tags, points|
+      Peatio::InfluxDB.client(keyshard: market).query trades_query.join(' '), params: options.merge(market: market, trades: trades_with_rp) do |_name, _tags, points|
         return points.map(&:deep_symbolize_keys!)
       end
     end
 
     # Low, High, First, Last, sum total (amount * price), sum 24 hours amount and average 24 hours price calculated using VWAP ratio for 24 hours trades
     def market_ticker_from_influx(market)
-      tickers_query = 'SELECT MIN(price), MAX(price), FIRST(price), LAST(price), SUM(total) AS volume, SUM(amount) AS amount, SUM(total) / SUM(amount) AS vwap FROM trades WHERE market=%{market} AND time > now() - 24h'
+      tickers_query = "SELECT MIN(price), MAX(price), FIRST(price), LAST(price), SUM(total) AS volume, SUM(amount) AS amount, SUM(total) / SUM(amount) AS vwap FROM #{trades_with_rp} WHERE market=%{market} AND time > now() - 24h"
       Peatio::InfluxDB.client(keyshard: market).query tickers_query, params: { market: market } do |_name, _tags, points|
         return points.map(&:deep_symbolize_keys!).first
       end
     end
 
     def trade_from_influx_before_date(market, date)
-      trades_query = 'SELECT id, price, amount, total, taker_type, market, created_at FROM trades WHERE market=%{market} AND created_at < %{date} ORDER BY DESC LIMIT 1 '
-      Peatio::InfluxDB.client(keyshard: market).query trades_query, params: { market: market, date: date.to_i } do |_name, _tags, points|
+      trades_query = "SELECT id, price, amount, total, taker_type, market, created_at FROM #{trades_with_rp} WHERE market=%{market} AND created_at < %{date} ORDER BY DESC LIMIT 1 "
+      Peatio::InfluxDB.client(keyshard: market).query trades_query, params: { market: market, date: date.to_i, trades: trades_with_rp } do |_name, _tags, points|
         return points.map(&:deep_symbolize_keys!).first
       end
     end
 
     def trade_from_influx_after_date(market, date)
-      trades_query = 'SELECT id, price, amount, total, taker_type, market, created_at FROM trades WHERE market=%{market} AND created_at >= %{date} ORDER BY ASC LIMIT 1 '
-      Peatio::InfluxDB.client(keyshard: market).query trades_query, params: { market: market, date: date.to_i } do |_name, _tags, points|
+      trades_query = "SELECT id, price, amount, total, taker_type, market, created_at FROM #{trades_with_rp} WHERE market=%{market} AND created_at >= %{date} ORDER BY ASC LIMIT 1 "
+      Peatio::InfluxDB.client(keyshard: market).query trades_query, params: { market: market, date: date.to_i, trades: trades_with_rp } do |_name, _tags, points|
         return points.map(&:deep_symbolize_keys!).first
       end
     end
@@ -192,7 +196,14 @@ class Trade < ApplicationRecord
   end
 
   def write_to_influx
-    Peatio::InfluxDB.client(keyshard: market_id).write_point(self.class.table_name, influx_data, "ns")
+    return if !Peatio::InfluxDB.check_write_to_rp("trades", created_at)
+
+    rp = Peatio::InfluxDB.m_to_rp("trades")
+    if rp
+      Peatio::InfluxDB.client(keyshard: market_id).write_point(self.class.table_name, influx_data, "ns", rp)
+    else
+      Peatio::InfluxDB.client(keyshard: market_id).write_point(self.class.table_name, influx_data, "ns")
+    end
   end
 
   private
