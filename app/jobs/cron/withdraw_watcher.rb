@@ -83,6 +83,15 @@ module Jobs
         end
 
         def fetch_withdraw_txid(withdraw)
+          tx = fetch_withdraw_status(withdraw)
+          if tx.status.failed?
+            withdraw.fail!
+            return
+          elsif tx.status.rejected?
+            withdraw.reject!
+            return
+          end
+
           withdraw.txid = @service.adapter.fetch_blockchain_transaction_id(withdraw.remote_id)
           return if withdraw.txid.blank?
 
@@ -90,9 +99,14 @@ module Jobs
           withdraw.dispatch!
         end
 
-        def update_withdraw_status(withdraw)
+        def fetch_withdraw_status(withdraw)
           tx = Peatio::Transaction.new
           tx.status = @service.adapter.fetch_withdraw_status(withdraw.remote_id)
+          return tx
+        end
+
+        def update_withdraw_status(withdraw)
+          tx = fetch_withdraw_status(withdraw)
 
           if tx.status.success?
             withdraw.success!
