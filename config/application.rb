@@ -4,6 +4,7 @@
 require_relative 'boot'
 
 require 'rails'
+require "active_storage/engine"
 
 %w( active_record action_controller action_view active_job ).each { |framework| require "#{framework}/railtie" }
 

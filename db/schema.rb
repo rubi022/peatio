@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_01_083227) do
+ActiveRecord::Schema.define(version: 2022_04_29_084136) do
 
-  create_table "accounts", primary_key: ["currency_id", "member_id", "type"], options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "accounts", primary_key: ["currency_id", "member_id", "type"], options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.string "currency_id", limit: 10, null: false
     t.string "type", default: "spot", null: false
@@ -24,7 +24,28 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["member_id"], name: "index_accounts_on_member_id"
   end
 
-  create_table "adjustments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.bigint "byte_size", null: false
+    t.string "checksum", null: false
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "adjustments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "reason", null: false
     t.text "description", null: false
     t.bigint "creator_id", null: false
@@ -41,7 +62,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["currency_id"], name: "index_adjustments_on_currency_id"
   end
 
-  create_table "assets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "assets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "code", null: false
     t.string "currency_id", null: false
     t.string "reference_type"
@@ -54,7 +75,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["reference_type", "reference_id"], name: "index_assets_on_reference_type_and_reference_id"
   end
 
-  create_table "beneficiaries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "beneficiaries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.string "currency_id", limit: 10, null: false
     t.string "blockchain_key", null: false
@@ -71,7 +92,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["member_id"], name: "index_beneficiaries_on_member_id"
   end
 
-  create_table "blockchain_currencies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "blockchain_currencies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "currency_id", null: false
     t.string "blockchain_key", null: false
     t.string "parent_id"
@@ -91,7 +112,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["parent_id"], name: "index_blockchain_currencies_on_parent_id"
   end
 
-  create_table "blockchains", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "blockchains", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "key", null: false
     t.string "name"
     t.string "client", null: false
@@ -115,7 +136,14 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["status"], name: "index_blockchains_on_status"
   end
 
-  create_table "currencies", id: :string, limit: 10, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "blogs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
+    t.string "text"
+    t.string "image"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "currencies", id: :string, limit: 10, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.string "homepage"
@@ -131,7 +159,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["position"], name: "index_currencies_on_position"
   end
 
-  create_table "currencies_wallets", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "currencies_wallets", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "currency_id"
     t.bigint "wallet_id"
     t.index ["currency_id", "wallet_id"], name: "index_currencies_wallets_on_currency_id_and_wallet_id", unique: true
@@ -139,7 +167,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["wallet_id"], name: "index_currencies_wallets_on_wallet_id"
   end
 
-  create_table "deposits", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "deposits", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.string "currency_id", limit: 10, null: false
     t.string "blockchain_key", null: false
@@ -167,7 +195,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["type"], name: "index_deposits_on_type"
   end
 
-  create_table "engines", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "engines", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "name", null: false
     t.string "driver", null: false
     t.string "uid"
@@ -178,7 +206,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.integer "state", default: 1, null: false
   end
 
-  create_table "expenses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "expenses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "code", null: false
     t.string "currency_id", null: false
     t.string "reference_type"
@@ -191,7 +219,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["reference_type", "reference_id"], name: "index_expenses_on_reference_type_and_reference_id"
   end
 
-  create_table "internal_transfers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "internal_transfers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "currency_id", null: false
     t.decimal "amount", precision: 32, scale: 16, null: false
     t.bigint "sender_id", null: false
@@ -201,7 +229,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "jobs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "jobs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "name", null: false
     t.integer "pointer", unsigned: true
     t.integer "counter"
@@ -212,7 +240,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.datetime "finished_at"
   end
 
-  create_table "liabilities", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "liabilities", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "code", null: false
     t.string "currency_id", null: false
     t.bigint "member_id"
@@ -227,7 +255,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["reference_type", "reference_id"], name: "index_liabilities_on_reference_type_and_reference_id"
   end
 
-  create_table "markets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "markets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "symbol", limit: 20, null: false
     t.string "type", default: "spot", null: false
     t.string "base_unit", limit: 10, null: false
@@ -251,7 +279,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["symbol", "type"], name: "index_markets_on_symbol_and_type", unique: true
   end
 
-  create_table "members", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "members", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "uid", limit: 32, null: false
     t.string "email"
     t.integer "level", null: false
@@ -267,7 +295,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["username"], name: "index_members_on_username", unique: true
   end
 
-  create_table "operations_accounts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "operations_accounts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "code", limit: 3, null: false
     t.string "type", limit: 10, null: false
     t.string "kind", limit: 30, null: false
@@ -283,7 +311,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["type"], name: "index_operations_accounts_on_type"
   end
 
-  create_table "orders", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "orders", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.binary "uuid", limit: 16, null: false
     t.string "remote_id"
     t.string "bid", limit: 10, null: false
@@ -317,7 +345,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["uuid"], name: "index_orders_on_uuid", unique: true
   end
 
-  create_table "payment_addresses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "payment_addresses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id"
     t.bigint "wallet_id"
     t.string "blockchain_key", null: false
@@ -331,7 +359,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["wallet_id"], name: "index_payment_addresses_on_wallet_id"
   end
 
-  create_table "refunds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "refunds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "deposit_id", null: false
     t.string "state", limit: 30, null: false
     t.string "address", null: false
@@ -341,7 +369,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["state"], name: "index_refunds_on_state"
   end
 
-  create_table "revenues", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "revenues", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.integer "code", null: false
     t.string "currency_id", null: false
     t.bigint "member_id"
@@ -355,7 +383,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["reference_type", "reference_id"], name: "index_revenues_on_reference_type_and_reference_id"
   end
 
-  create_table "stats_member_pnl", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "stats_member_pnl", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.string "pnl_currency_id", limit: 10, null: false
     t.string "currency_id", limit: 10, null: false
@@ -372,7 +400,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["pnl_currency_id", "currency_id", "member_id"], name: "index_currency_ids_and_member_id", unique: true
   end
 
-  create_table "stats_member_pnl_idx", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "stats_member_pnl_idx", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "pnl_currency_id", limit: 10, null: false
     t.string "currency_id", limit: 10, null: false
     t.string "reference_type", null: false
@@ -383,7 +411,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["pnl_currency_id", "currency_id", "reference_type"], name: "index_currency_ids_and_type", unique: true
   end
 
-  create_table "trades", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "trades", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.decimal "price", precision: 32, scale: 16, null: false
     t.decimal "amount", precision: 32, scale: 16, null: false
     t.decimal "total", precision: 32, scale: 16, default: "0.0", null: false
@@ -406,7 +434,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["taker_type"], name: "index_trades_on_taker_type"
   end
 
-  create_table "trading_fees", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "trading_fees", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "market_id", limit: 20, default: "any", null: false
     t.string "market_type", default: "spot", null: false
     t.string "group", limit: 32, default: "any", null: false
@@ -419,7 +447,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["market_id", "market_type"], name: "index_trading_fees_on_market_id_and_market_type"
   end
 
-  create_table "transactions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "transactions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "currency_id", null: false
     t.string "fee_currency_id", null: false
     t.string "kind"
@@ -443,7 +471,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["txid"], name: "index_transactions_on_txid"
   end
 
-  create_table "transfers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "transfers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "key", limit: 30, null: false
     t.integer "category", limit: 1, null: false
     t.string "description", default: ""
@@ -452,7 +480,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["key"], name: "index_transfers_on_key", unique: true
   end
 
-  create_table "wallets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "wallets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "blockchain_key", limit: 32
     t.string "name", limit: 64
     t.string "address", null: false
@@ -470,7 +498,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["status"], name: "index_wallets_on_status"
   end
 
-  create_table "whitelisted_smart_contracts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "whitelisted_smart_contracts", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "description"
     t.string "address", null: false
     t.string "state", limit: 30, null: false
@@ -480,7 +508,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["address", "blockchain_key"], name: "index_whitelisted_smart_contracts_on_address_and_blockchain_key", unique: true
   end
 
-  create_table "withdraw_limits", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "withdraw_limits", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.string "group", limit: 32, default: "any", null: false
     t.string "kyc_level", limit: 32, default: "any", null: false
     t.decimal "limit_24_hour", precision: 32, scale: 16, default: "0.0", null: false
@@ -492,7 +520,7 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["kyc_level"], name: "index_withdraw_limits_on_kyc_level"
   end
 
-  create_table "withdraws", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "withdraws", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb3", force: :cascade do |t|
     t.bigint "member_id", null: false
     t.bigint "beneficiary_id"
     t.string "currency_id", limit: 10, null: false
@@ -522,4 +550,5 @@ ActiveRecord::Schema.define(version: 2021_10_01_083227) do
     t.index ["type"], name: "index_withdraws_on_type"
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
 end
