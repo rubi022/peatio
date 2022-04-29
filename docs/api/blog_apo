@@ -1,0 +1,17 @@
+I have added 2 APIs with following endpoints please use postman to access these APIs
+
+
+
+1. POST api/v2/admin/blogs - Create blog
+params
+{
+image: file_type
+text: string
+}
+
+
+2. GET api/v2/admin/blogs - List blogs with pagination
+Only authorization token in headers
+
+Thanks
+}
